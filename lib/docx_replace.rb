@@ -1,7 +1,7 @@
 # encoding: UTF-8
 
 require "docx_replace/version"
-require 'zip'
+require 'zip/zip'
 require 'tempfile'
 
 module DocxReplace
@@ -9,7 +9,7 @@ module DocxReplace
     attr_reader :document_content
 
     def initialize(path, temp_dir=nil)
-      @zip_file = Zip::File.new(path)
+      @zip_file = Zip::ZipFile.new(path)
       @temp_dir = temp_dir
       read_docx_file
     end
@@ -51,7 +51,7 @@ module DocxReplace
       else
         temp_file = Tempfile.new('docxedit-', @temp_dir)
       end
-      Zip::OutputStream.open(temp_file.path) do |zos|
+      Zip::ZipOutputStream.open(temp_file.path) do |zos|
         @zip_file.entries.each do |e|
           unless e.name == DOCUMENT_FILE_PATH
             zos.put_next_entry(e.name)
@@ -70,7 +70,7 @@ module DocxReplace
         path = new_path
       end
       FileUtils.mv(temp_file.path, path)
-      @zip_file = Zip::File.new(path)
+      @zip_file = Zip::ZipFile.new(path)
     end
   end
 end
